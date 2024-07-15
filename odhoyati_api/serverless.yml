@@ -1,0 +1,31 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: odhoyati
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: odhoyati
+service: odhoyati-api
+
+provider:
+    name: aws
+    runtime: python3.12
+    region: me-central-1
+    environment:
+        MONGO_DETAILS: "your_mongodb_connection_string"
+        REDIS_URL: "redis://your_redis_url"
+
+functions:
+    app:
+        handler: handler.handler
+        events:
+            - http:
+                  path: /
+                  method: ANY
+            - http:
+                  path: /{proxy+}
+                  method: ANY
+
+plugins:
+    - serverless-python-requirements
+
+custom:
+    pythonRequirements:
+        dockerizePip: true
