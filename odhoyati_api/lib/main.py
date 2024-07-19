@@ -2,10 +2,10 @@ from fastapi import FastAPI
 from uvicorn import run
 
 # Replace relative imports with absolute imports
-from lib.views.appointments.appointments import router as appointments_router
-from lib.views.auth.auth import router as auth_router
-from lib.views.items.items import router as items_router
-from lib.views.users.users import router as users_router
+from views.appointments.appointments import router as appointments_router
+from views.auth.auth import router as auth_router
+from views.items.items import router as items_router
+from views.users.users import router as users_router
 
 
 
@@ -21,4 +21,6 @@ app.include_router(users_router, prefix='/users')
 
 # Starting app
 if __name__ == "__main__":
-    run("lib.main:app", host="0.0.0.0", port=8000)
+    run("main:app", host="0.0.0.0", port=8000)
+
+
