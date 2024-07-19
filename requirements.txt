@@ -1,0 +1,6 @@
+fastapi
+pydantic
+motor
+aioredis
+uvicorn
+mangum
