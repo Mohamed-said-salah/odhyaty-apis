@@ -1,14 +1,9 @@
+import motor.motor_asyncio
 
-from pymongo.mongo_client import MongoClient
+MONGO_DETAILS = "mongodb://localhost:27017"
 
-uri = "mongodb+srv://<username>:<password>@odhaty.ximgoxe.mongodb.net/?retryWrites=true&w=majority&appName=odhaty"
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
-# Create a new client and connect to the server
-client = MongoClient(uri)
+database = client.students
 
-# Send a ping to confirm a successful connection
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+student_collection = database.get_collection("students_collection")
