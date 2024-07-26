@@ -3,14 +3,18 @@ from fastapi.routing import APIRouter
 
 router = APIRouter()
 
+# todo: register
+@router.post("/register")
+async def register():
+    return {"message": "welcome to register"}
 
-# Todo: create otp endpoint
+# todo: login
+@router.post("/login")
+async def login():
+    return {"message": "welcome to login"}
 
-
-# Todo: validate otp endpoint
-
-# Todo: sign out
-
-
-
+# todo: logout
+@router.delete("/logout")
+async def logout():
+    return {"message": "welcome to logout"}
 
