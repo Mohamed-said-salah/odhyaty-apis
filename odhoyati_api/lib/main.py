@@ -1,6 +1,27 @@
 from fastapi import FastAPI
 from uvicorn import run
 
+
+from fastapi_jwt_auth import AuthJWT
+from security.token_settings import Settings
+from core.redis.redis_conn import redis_conn
+
+
+settings = Settings()
+
+
+@AuthJWT.load_config
+def get_config():
+    return settings
+
+
+@AuthJWT.token_in_denylist_loader
+def check_if_token_in_denylist(decrypted_token):
+    jti = decrypted_token["jti"]
+    entry = redis_conn.get(jti)
+    return entry and entry == "true"
+
+
 # Replace relative imports with absolute imports
 from views.auth.auth import router as auth_router
 from views.admin.admin import router as admin_router

@@ -1,11 +1,17 @@
 from fastapi.routing import APIRouter
 
-from fastapi import Body, Response
+from fastapi import Body, Response, Depends
 
 import json
 
 import bcrypt
 
+
+from fastapi_jwt_auth import AuthJWT
+
+from security.token_settings import Settings
+
+from core.redis.redis_conn import redis_conn as redis
 
 from core.schemas.user_schema import UserSchema, UserLoginModel
 
@@ -63,6 +69,8 @@ async def login(user: UserLoginModel = Body(...)):
     current_user["created_at"] = current_user["created_at"].isoformat()
     
     current_user["updated_at"] = current_user["updated_at"].isoformat()
+    
+    redis.set("me", json.dumps(current_user))
     
     return Response(status_code=200, content=json.dumps({"message": "user logged in successfully", "data": current_user}))
 
