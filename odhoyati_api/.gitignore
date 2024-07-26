@@ -1,2 +1,4 @@
 env_vars_texts
 lib/security/keys.py
+__pycache__/
+**/__pycache__/

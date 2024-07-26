@@ -9,6 +9,8 @@ import bcrypt
 
 from fastapi_jwt_auth import AuthJWT
 
+from security.token_settings import Settings
+
 from core.redis.redis_conn import redis_conn as redis
 
 from core.schemas.user_schema import UserSchema, UserLoginModel
@@ -76,5 +78,9 @@ async def login(user: UserLoginModel = Body(...)):
 # todo: logout
 @router.delete("/logout")
 async def logout(token: str = Depends(AuthJWT())):
+    
+    
+    redis.set(token, token, ex=Settings.refresh_expires)
+    
     return {"message": "welcome to logout"}
 
