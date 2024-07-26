@@ -12,6 +12,7 @@ class UserSchema(BaseModel):
     password: str = Field(..., description="password of the user")
     is_verified: bool = Field(False, description="status of the user account")
     is_active: bool = Field(True, description="status of the user account")
+    user_type: str = "user"
     created_at: str = Field(datetime.utcnow(), description="date and time of user creation")
     updated_at: str = Field(datetime.utcnow(), description="date and time of user update")
     
@@ -26,6 +27,7 @@ class UserSchema(BaseModel):
                 "password": "password123",
                 "is_verified": True,
                 "is_active": True,
+                "type": "user",
                 "created_at": "2022-01-01 00:00:00",
                 "updated_at": "2022-01-01 00:00:00"
             }
@@ -64,6 +66,7 @@ class UpdateUserModel(BaseModel):
                 "password": "password123",
                 "is_verified": True,
                 "is_active": True,
+                "type": "user",
                 "updated_at": "2022-01-01 00:00:00"
             }
         }

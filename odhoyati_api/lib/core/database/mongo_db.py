@@ -24,6 +24,7 @@ def users_helper(user) -> dict:
         "password": user["password"],
         "is_verified": user["is_verified"],
         "is_active": user["is_active"],
+        "user_type": user["user_type"],
         "created_at": user["created_at"],
         "updated_at": user["updated_at"]
     }

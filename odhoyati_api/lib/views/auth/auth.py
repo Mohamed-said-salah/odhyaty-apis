@@ -25,12 +25,14 @@ from controllers.crud.users import (
 )
 
 
+TOKEN_SETTINGS = Settings()
+
 router = APIRouter()
 
 
 # todo: register
 @router.post("/register")
-async def register(user: UserSchema = Body(...)):
+async def register(user: UserSchema = Body(...), Authorize: AuthJWT = Depends()):
     
     current_user = await get_user_by_phone_number(user.phone_number)
     
@@ -46,11 +48,27 @@ async def register(user: UserSchema = Body(...)):
     user_dict["created_at"] = user.created_at.isoformat()
     user_dict["updated_at"] = user.updated_at.isoformat()
     
-    return Response(status_code=201, content=json.dumps({"message": "user created successfully", "data": user_dict}))
+    
+    access_token = Authorize.create_refresh_token(
+            subject=str(user_dict["id"]),
+            user_claims={
+                "user_type": user.user_type,
+                "is_verified": user.is_verified,
+                "is_active": user.is_active,
+            }
+        )
+    
+    return Response(
+        status_code=201,
+        content=json.dumps({"message": "user created successfully", "data": user_dict}),
+        headers={
+            "Authorization": f"Bearer {access_token}",
+        },
+    )
 
 # todo: login
 @router.post("/login")
-async def login(user: UserLoginModel = Body(...)):
+async def login(user: UserLoginModel = Body(...), Authorize: AuthJWT = Depends()):
 
     current_user = await get_user_by_phone_number(user.phone_number)
     
@@ -72,15 +90,41 @@ async def login(user: UserLoginModel = Body(...)):
     
     redis.set("me", json.dumps(current_user))
     
-    return Response(status_code=200, content=json.dumps({"message": "user logged in successfully", "data": current_user}))
+    access_token = Authorize.create_refresh_token(
+            subject=str(current_user["id"]),
+            user_claims={
+                "user_type": current_user["user_type"],
+                "is_verified": current_user["is_verified"],
+                "is_active": current_user["is_active"],
+            }
+        )
+    
+    
+    return Response(
+            status_code=200,
+            content=json.dumps({"message": "user logged in successfully", "data": current_user}),
+            headers={
+                "Authorization": f"Bearer {access_token}",
+            },
+        )
 
 
 # todo: logout
 @router.delete("/logout")
-async def logout(token: str = Depends(AuthJWT())):
+async def logout(Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+    except:
+        return Response(status_code=401, content="user already signed out")
     
     
-    redis.set(token, token, ex=Settings.refresh_expires)
     
-    return {"message": "welcome to logout"}
+    jti = Authorize.get_raw_jwt().get('jti')
+    
+    with redis.client() as redis_client:
+        redis_client.setex(jti, TOKEN_SETTINGS.refresh_expires, "true")
+        redis_client.save()
+
+    
+    return Response(status_code=200, content="user logged out successfully")
 
