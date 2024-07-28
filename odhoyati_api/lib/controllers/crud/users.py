@@ -34,6 +34,10 @@ async def get_user_by_phone_number(phone_number: str) -> Optional[dict]:
         return users_helper(user)
     return None
 
+# todo: filter users
+
+# todo: paginate users
+
 # update user with id
 async def update_user_by_id(id: str, data: dict) -> Optional[dict]:
     user = await users_collection.find_one({"_id": ObjectId(id)})

@@ -8,10 +8,12 @@ database = client.odhyaty
 
 users_collection = database.get_collection("users")
 farmers_collection = database.get_collection("farmers")
+items_collection = database.get_collection("items")
+
 
 # todo: admins collection
 # todo: appointments collection
-# todo: items collection
+
 
 
 def users_helper(user) -> dict:
@@ -49,4 +51,25 @@ def farmers_helper(farmer) -> dict:
         "is_active": farmer["is_active"],
         "created_at": farmer["created_at"],
         "updated_at": farmer["updated_at"]
+    }
+    
+
+def items_helper(item) -> dict:
+    return {
+        "id": str(item["_id"]),
+        "farmer_id": item["farmer_id"],
+        "image": item["image"],
+        "title": item["title"],
+        "description": item["description"],
+        "category": item["category"],
+        "weight": item["weight"],
+        "gender": item["gender"],
+        "pricePerKilo": item["pricePerKilo"],
+        "age": item["age"],
+        "quantity": item["quantity"],
+        "is_slaughtering": item["is_slaughtering"],
+        "is_delivering": item["is_delivering"],
+        "is_active": item["is_active"],
+        "created_at": item["created_at"],
+        "updated_at": item["updated_at"]
     }

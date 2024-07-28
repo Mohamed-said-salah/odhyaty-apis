@@ -40,6 +40,10 @@ async def get_farmer_by_phone_number(phone_number: str) -> Optional[dict]:
     return None
 
 
+# todo: filter farmers
+
+# todo: paginate farmers
+
 # update farmer with id
 async def update_farmer_by_id(id: str, data: dict) -> Optional[dict]:
     farmer = await farmers_collection.find_one({"_id": ObjectId(id)})
