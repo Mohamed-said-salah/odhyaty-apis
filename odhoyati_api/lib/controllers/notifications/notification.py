@@ -10,7 +10,7 @@ from google.auth.transport.requests import Request
 
 SERVICE_ACCOUNT_FILE = "../security/odhoyati-95978-a296af5963e4.json"
 
-FCM_ENDPOINT = 'https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send'
+FCM_ENDPOINT = 'https://fcm.googleapis.com/v1/projects/odhoyati-95978/messages:send'
 
 credentials = service_account.Credentials.from_service_account_file(
     SERVICE_ACCOUNT_FILE,
