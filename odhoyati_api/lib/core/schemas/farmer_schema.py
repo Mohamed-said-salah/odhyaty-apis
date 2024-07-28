@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel, Field, List
+from typing import Optional, List
+from pydantic import BaseModel, Field
 
 
 from datetime import datetime
@@ -11,6 +11,7 @@ class FarmerSchema(BaseModel):
     address: str = Field(None, description="descriptive address of the user")
     phone_number: str = Field(..., description="phone number of the user")
     password: str = Field(..., description="password of the user")
+    notification_token: str = Field(None, description="notification token of the farmer")
     image: str = Field(None, description="password of the user")
     user_type: str =  Field("farmer", description="descriptive address of the user")
     has_slaughtering: bool = Field(False, description="status of slaughtering")
@@ -32,6 +33,7 @@ class FarmerSchema(BaseModel):
                 "address": "21 Main Street, Cairo",
                 "phone_number": "+20111111111",
                 "password": "password123",
+                "notification_token": "123456789",
                 "image": "https://example.com/image.png",
                 "user_type": "farmer",
                 "has_slaughtering": True,
@@ -52,12 +54,14 @@ class FarmerSchema(BaseModel):
 class FarmerLoginModel(BaseModel):
     phone_number: str
     password: str
+    notification_token: Optional[str]
     
     class Config:
         json_schema_extra = {
             "example": {
                 "phone_number": "+20111111111",
-                "password": "password123"
+                "password": "password123",
+                "notification_token": "123456789"
             }
         }
 
@@ -68,6 +72,7 @@ class UpdateFarmerModel(BaseModel):
     address: Optional[str]
     phone_number: Optional[str]
     password: Optional[str]
+    notification_token: Optional[str]
     image: Optional[str]
     user_type: Optional[str] = "farmer"
     has_slaughtering: Optional[bool] = False
@@ -87,6 +92,7 @@ class UpdateFarmerModel(BaseModel):
                 "address": "21 Main Street, Cairo",
                 "phone_number": "+20111111111",
                 "password": "password123",
+                "notification_token": "123456789",
                 "image": "https://example.com/image.png",
                 "user_type": "farmer",
                 "has_slaughtering": True,

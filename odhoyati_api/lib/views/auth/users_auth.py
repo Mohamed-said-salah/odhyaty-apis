@@ -88,7 +88,6 @@ async def login(user: UserLoginModel = Body(...), Authorize: AuthJWT = Depends()
     
     current_user["updated_at"] = current_user["updated_at"].isoformat()
     
-    redis.set("me", json.dumps(current_user))
     
     access_token = Authorize.create_refresh_token(
             subject=str(current_user["id"]),

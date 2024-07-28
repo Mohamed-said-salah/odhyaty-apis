@@ -23,7 +23,7 @@ def check_if_token_in_denylist(decrypted_token):
 
 
 # Replace relative imports with absolute imports
-from odhoyati_api.lib.views.auth.auth import router as auth_router
+from views.auth.auth import router as auth_router
 from views.admin.admin import router as admin_router
 from views.appointments.appointments import router as appointments_router
 from views.items.items import router as items_router

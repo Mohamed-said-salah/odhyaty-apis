@@ -10,6 +10,7 @@ class UserSchema(BaseModel):
     address: str = Field(None, description="descriptive address of the user")
     phone_number: str = Field(..., description="phone number of the user")
     password: str = Field(..., description="password of the user")
+    notification_token: str = Field(None, description="notification token of the user")
     is_verified: bool = Field(False, description="status of the user account")
     is_active: bool = Field(True, description="status of the user account")
     user_type: str = "user"
@@ -25,6 +26,7 @@ class UserSchema(BaseModel):
                 "address": "21 Main Street, Cairo",
                 "phone_number": "+20111111111",
                 "password": "password123",
+                "notification_token": "123456789",
                 "is_verified": True,
                 "is_active": True,
                 "type": "user",
@@ -37,12 +39,14 @@ class UserSchema(BaseModel):
 class UserLoginModel(BaseModel):
     phone_number: str
     password: str
+    notification_token: Optional[str]
     
     class Config:
         json_schema_extra = {
             "example": {
                 "phone_number": "+20111111111",
-                "password": "password123"
+                "password": "password123",
+                "notification_token": "123456789"
             }
         }
 
@@ -52,6 +56,7 @@ class UpdateUserModel(BaseModel):
     address: Optional[str]
     phone_number: Optional[str]
     password: Optional[str]
+    notification_token: Optional[str]
     is_verified: Optional[bool] = True
     is_active: Optional[bool] = True
     updated_at: str = datetime.utcnow()
@@ -64,6 +69,7 @@ class UpdateUserModel(BaseModel):
                 "address": "21 Main Street, Cairo",
                 "phone_number": "+20111111111",
                 "password": "password123",
+                "notification_token": "123456789",
                 "is_verified": True,
                 "is_active": True,
                 "type": "user",
