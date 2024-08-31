@@ -39,7 +39,7 @@ class UserSchema(BaseModel):
 class UserLoginModel(BaseModel):
     phone_number: str
     password: str
-    notification_token: Optional[str]
+    notification_token: Optional[str] = None
     
     class Config:
         json_schema_extra = {

@@ -12,12 +12,13 @@ class FarmerSchema(BaseModel):
     phone_number: str = Field(..., description="phone number of the user")
     password: str = Field(..., description="password of the user")
     notification_token: str = Field(None, description="notification token of the farmer")
-    image: str = Field(None, description="password of the user")
+    image: str = Field(None, description="image of the farmer")
     user_type: str =  Field("farmer", description="descriptive address of the user")
     has_slaughtering: bool = Field(False, description="status of slaughtering")
     has_delivering: bool = Field(False, description="status of delivering")
     work_hours: dict = Field({"start": "27-01-2022 06:00:00+00:00", "end": "27-01-2022 17:00:00+00:00"}, description="The hour farmer works on")
     work_days : List[int] = Field(..., description="The days farmer works on from 1 to 7")
+    rating: Optional[float] = Field(None, description="The rating of the farmer")
     is_verified: bool = Field(False, description="status of the user account")
     is_active: bool = Field(True, description="status of the user account")
     created_at: str = Field(datetime.utcnow(), description="date and time of user creation")
@@ -43,6 +44,7 @@ class FarmerSchema(BaseModel):
                     "end": "27-01-2022 17:00:00+00:00"
                     },
                 "work_days": [7,1,2,3,4],
+                "rating": 4.5,
                 "is_verified": True,
                 "is_active": True,
                 "created_at": "2022-01-01 00:00:00",
@@ -54,7 +56,7 @@ class FarmerSchema(BaseModel):
 class FarmerLoginModel(BaseModel):
     phone_number: str
     password: str
-    notification_token: Optional[str]
+    notification_token: Optional[str] = None
     
     class Config:
         json_schema_extra = {
@@ -66,19 +68,20 @@ class FarmerLoginModel(BaseModel):
         }
 
 class UpdateFarmerModel(BaseModel):
-    name: Optional[str]
-    bio: Optional[str]
-    location: Optional[str]
-    address: Optional[str]
-    phone_number: Optional[str]
-    password: Optional[str]
-    notification_token: Optional[str]
-    image: Optional[str]
+    name: Optional[str] = None
+    bio: Optional[str] = None
+    location: Optional[str] = None
+    address: Optional[str] = None
+    phone_number: Optional[str] = None
+    password: Optional[str] = None
+    notification_token: Optional[str] = None
+    image: Optional[str] = None
     user_type: Optional[str] = "farmer"
     has_slaughtering: Optional[bool] = False
     has_delivering: Optional[bool] = False
     work_hours: Optional[dict] = {"start": "27-01-2022 06:00:00+00:00", "end": "27-01-2022 17:00:00+00:00"}
     work_days: Optional[List[int]] = [7,1,2,3,4]
+    rating: Optional[float] = None
     is_verified: Optional[bool] = True
     is_active: Optional[bool] = True
     updated_at: str = datetime.utcnow()
@@ -102,6 +105,7 @@ class UpdateFarmerModel(BaseModel):
                     "end": "27-01-2022 17:00:00+00:00"
                     },
                 "work_days": [7,1,2,3,4],
+                "rating": 4.5,
                 "is_verified": True,
                 "is_active": True,
                 "type": "farmer",

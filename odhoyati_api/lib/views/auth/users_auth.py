@@ -24,6 +24,8 @@ from controllers.crud.users import (
     delete_user,
 )
 
+from controllers.notifications.notification import send_fcm_notification
+
 
 TOKEN_SETTINGS = Settings()
 
@@ -48,6 +50,11 @@ async def register(user: UserSchema = Body(...), Authorize: AuthJWT = Depends())
     user_dict["created_at"] = user.created_at.isoformat()
     user_dict["updated_at"] = user.updated_at.isoformat()
     
+    try:
+        # todo: send this notification to the admin
+        await send_fcm_notification(token=user.notification_token, title= "fastapi", body =  "first notification trial")
+    except:
+        pass
     
     access_token = Authorize.create_refresh_token(
             subject=str(user_dict["id"]),
@@ -75,10 +82,25 @@ async def login(user: UserLoginModel = Body(...), Authorize: AuthJWT = Depends()
     if not current_user:
         return Response(status_code=404, content="user not found")
     
+    
+    
     if not bcrypt.checkpw(user.password.encode('utf-8'), current_user["password"].encode('utf-8')):
         return Response(status_code=401, content="invalid phone number or password")
     
-    await update_user_by_id(current_user["id"], {"is_active": True})
+    try:
+        updatesMap = {}
+        
+        if user.notification_token:
+            updatesMap["notification_token"] = user.notification_token
+            current_user["notification_token"] = user.notification_token
+        
+        updatesMap["is_active"] = True
+        
+        await update_user_by_id(current_user["id"], updatesMap)
+        # await send_fcm_notification(token=current_user["notification_token"], title= "fastapi login", body =  "first notification trial for fastapi login")
+        
+    except:
+        pass
     
     current_user["is_active"] = True
     
@@ -87,7 +109,6 @@ async def login(user: UserLoginModel = Body(...), Authorize: AuthJWT = Depends()
     current_user["created_at"] = current_user["created_at"].isoformat()
     
     current_user["updated_at"] = current_user["updated_at"].isoformat()
-    
     
     access_token = Authorize.create_refresh_token(
             subject=str(current_user["id"]),

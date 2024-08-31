@@ -24,3 +24,61 @@ class ItemSchema(BaseModel):
     is_active: bool = Field(True, description="is the item active")
     created_at: str = Field(datetime.utcnow(), description="date and time of item creation")
     updated_at: str = Field(datetime.utcnow(), description="date and time of item update")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "farmer_id": "123456789",
+                "image": "https://example.com/image.png",
+                "title": "Item Title",
+                "description": "Item Description",
+                "category": "CAMEL",
+                "weight": 5.0,
+                "gender": "MALE",
+                "pricePerKilo": 10.0,
+                "age": 5.0,
+                "quantity": 10,
+                "is_slaughtering": True,
+                "is_delivering": True,
+                "is_active": True,
+                "created_at": "2022-01-01 00:00:00",
+                "updated_at": "2022-01-01 00:00:00"
+            }
+        }
+
+
+
+class UpdateItemModel(BaseModel):
+    image: Optional[str]
+    title: Optional[str]
+    description: Optional[str]
+    category: Optional[str]
+    weight: Optional[Union[int, float]]
+    gender: Optional[str]
+    pricePerKilo: Optional[float]
+    age: Optional[Union[int, float]]
+    quantity: Optional[int]
+    is_slaughtering: Optional[bool]
+    is_delivering: Optional[bool]
+    is_active: Optional[bool]
+    updated_at: str = datetime.utcnow()
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "image": "https://example.com/image.png",
+                "title": "Item Title",
+                "description": "Item Description",
+                "category": "CAMEL",
+                "weight": 5.0,
+                "gender": "MALE",
+                "pricePerKilo": 10.0,
+                "age": 5.0,
+                "quantity": 10,
+                "is_slaughtering": True,
+                "is_delivering": True,
+                "is_active": True,
+                "updated_at": "2022-01-01 00:00:00"
+            }
+        }
+

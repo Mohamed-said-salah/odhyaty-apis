@@ -1,12 +1,17 @@
 
 from fastapi.routing import APIRouter
 
-from fastapi import Body, Response, Depends
+from fastapi import Body, Response, Depends, File, UploadFile, Form
 
 import json
 
 import bcrypt
 
+import shutil
+
+import os
+
+from secrets import token_hex
 
 from fastapi_jwt_auth import AuthJWT
 
@@ -16,6 +21,7 @@ from core.redis.redis_conn import redis_conn as redis
 
 from core.schemas.farmer_schema import FarmerSchema, FarmerLoginModel
 
+from typing import Optional
 
 from controllers.crud.farmers import (
     add_farmer,
@@ -26,6 +32,7 @@ from controllers.crud.farmers import (
     delete_farmer_by_phone_number
 )
 
+from controllers.notifications.notification import send_fcm_notification
 
 TOKEN_SETTINGS = Settings()
 
@@ -36,7 +43,11 @@ router = APIRouter()
 
 # todo: register
 @router.post("/register")
-async def register(farmer: FarmerSchema = Body(...), Authorize: AuthJWT = Depends()):
+async def register(farmer_string: str = Form(...), image: UploadFile = File(None) , Authorize: AuthJWT = Depends()):
+    
+    farmer_data = json.loads(farmer_string)
+    
+    farmer = FarmerSchema(**farmer_data)
     
     current_farmer = await get_farmer_by_phone_number(farmer.phone_number)
     
@@ -47,11 +58,31 @@ async def register(farmer: FarmerSchema = Body(...), Authorize: AuthJWT = Depend
     
     farmer_dict = await add_farmer(farmer.dict())
     
+    
+    # upload photo
+    if image:
+        image_unique_id = f"{farmer_dict['id']}/{token_hex(5)}.jpg"
+        image_path = f"/mnt/d/api_images/{image_unique_id}" # todo: edit this while on production 
+        
+        # this makes sure that the directory is made before saving to it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        
+        with open(image_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+
+        if await update_farmer_by_id(farmer_dict["id"], {"image": image_unique_id}):
+            farmer_dict["image"] = image_unique_id
+
     farmer_dict.pop("password")
     
     farmer_dict["created_at"] = farmer.created_at.isoformat()
     farmer_dict["updated_at"] = farmer.updated_at.isoformat()
     
+    try:
+        # todo: send this notification to the admin instead
+        await send_fcm_notification(token=farmer.notification_token, title= "fastapi", body =  "first notification trial")
+    except:
+        pass
     
     access_token = Authorize.create_refresh_token(
             subject=str(farmer_dict["id"]),
@@ -81,7 +112,21 @@ async def login(farmer: FarmerLoginModel = Body(...), Authorize: AuthJWT = Depen
     if not bcrypt.checkpw(farmer.password.encode('utf-8'), current_farmer["password"].encode('utf-8')):
         return Response(status_code=401, content="invalid phone number or password")
     
-    await update_farmer_by_id(current_farmer["id"], {"is_active": True})
+    try:
+        updatesMap = {}
+        
+        if farmer.notification_token:
+            updatesMap["notification_token"] = farmer.notification_token
+            current_farmer["notification_token"] = farmer.notification_token
+        
+        updatesMap["is_active"] = True
+        
+        await update_farmer_by_id(current_farmer["id"], updatesMap)
+        # await send_fcm_notification(token=current_farmer["notification_token"], title= "fastapi login", body =  "first notification trial for fastapi login")
+        
+    except:
+        pass
+    
     
     current_farmer["is_active"] = True
     
@@ -91,12 +136,21 @@ async def login(farmer: FarmerLoginModel = Body(...), Authorize: AuthJWT = Depen
     
     current_farmer["updated_at"] = current_farmer["updated_at"].isoformat()
     
-    access_token = Authorize.create_refresh_token(subject=str(current_farmer["id"]))
+    access_token = Authorize.create_refresh_token(
+            subject=str(current_farmer["id"]),
+            user_claims={
+                "user_type": current_farmer["user_type"],
+                "is_verified": current_farmer["is_verified"],
+                "is_active": current_farmer["is_active"],
+            }
+        )
     
     return Response(
         status_code=200,
         content=json.dumps({"message": "farmer logged in successfully", "data": current_farmer}),
-        headers={"Authorization": f"Bearer {access_token}"}
+        headers={
+                "Authorization": f"Bearer {access_token}",
+            }
     )
     
 
@@ -116,7 +170,3 @@ async def logout(Authorize: AuthJWT = Depends()):
         redis_client.save()
         
     return Response(status_code=200, content="farmer logged out successfully")
-
-
-# todo: items
-# todo: notifications

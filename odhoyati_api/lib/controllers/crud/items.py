@@ -36,18 +36,48 @@ async def get_item_by_id(id: str) -> Optional[dict]:
 
 
 # get all items
-async def get_items() -> list:
+async def get_items(is_active: bool = True, page: Optional[int] = None, limit: Optional[int] = None) -> list:
+    
     items = []
-    async for item in items_collection.find():
-        items.append(items_helper(item))
+    
+    # This is for pagination and limiting
+    if page and limit:
+        if (is_active):    
+            async for item in items_collection.find({"is_active": is_active}).skip((page - 1) * limit).limit(limit):
+                items.append(items_helper(item))
+            return items
+    
+        async for item in items_collection.find().skip((page - 1) * limit).limit(limit):
+            items.append(items_helper(item))
+    
+    # This is in case there are not pagination
+    else :
+        if (is_active):    
+            async for item in items_collection.find({"is_active": is_active}):
+                items.append(items_helper(item))
+            return items
+    
+        async for item in items_collection.find():
+            items.append(items_helper(item))
+            
+            
     return items
 
 
 # get items by filter
-async def get_items_by_filter(filter: dict) -> list:
+async def query_items_by_filter(filter_: dict, page: Optional[int] = None, limit: Optional[int] = None) -> list:
     items = []
-    async for item in items_collection.find(filter):
-        items.append(items_helper(item))
+    
+    # Case of Pagination
+    if page and limit:
+        async for item in items_collection.find(filter_).skip((page - 1) * limit).limit(limit):
+            items.append(items_helper(item))
+    
+    # Case of No Pagination
+    else :
+        async for item in items_collection.find(filter_):
+            items.append(items_helper(item))
+    
     return items
 
 # todo: paginate items
