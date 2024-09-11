@@ -31,6 +31,20 @@ async def get_farmer_by_id(id: str) -> Optional[dict]:
         return farmers_helper(farmer)
     return None
 
+# get farmers by filter
+async def get_farmers_by_filter(filter_: dict, page: Optional[int] = None, limit: Optional[int] = None) -> list:
+    if page and limit:
+        farmers = []
+        async for farmer in farmers_collection.find(filter_).skip((page - 1) * limit).limit(limit):
+            farmers.append(farmers_helper(user))
+        return farmers
+    
+    farmers = []
+    async for farmer in farmers_collection.find(filter_):
+        farmers.append(farmers_helper(farmer))
+    return farmers
+
+
 
 # get farmer by phone number
 async def get_farmer_by_phone_number(phone_number: str) -> Optional[dict]:

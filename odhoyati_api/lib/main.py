@@ -24,10 +24,11 @@ def check_if_token_in_denylist(decrypted_token):
 
 # Replace relative imports with absolute imports
 from views.auth.auth import router as auth_router
-from views.admin.admin import router as admin_router
+from views.admin.admin_router import router as admin_router
 from views.orders.orders import router as orders_router
 from views.items.items import router as items_router
 from views.users.users import router as users_router
+from views.reviews.reviews import router as reviews_router
 
 
 
@@ -40,10 +41,9 @@ app.include_router(admin_router, prefix='/admin')
 app.include_router(orders_router, prefix='/orders')
 app.include_router(items_router, prefix='/items')
 app.include_router(users_router, prefix='/users')
+app.include_router(reviews_router, prefix='/reviews')
 
 
 # Starting app
 if __name__ == "__main__":
     run("main:app", host="0.0.0.0", port=8001, reload=True)
-
-

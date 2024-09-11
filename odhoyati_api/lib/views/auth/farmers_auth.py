@@ -79,8 +79,12 @@ async def register(farmer_string: str = Form(...), image: UploadFile = File(None
     farmer_dict["updated_at"] = farmer.updated_at.isoformat()
     
     try:
-        # todo: send this notification to the admin instead
-        await send_fcm_notification(token=farmer.notification_token, title= "fastapi", body =  "first notification trial")
+        admins = await get_all_admins()
+        for admin in admins:
+            try: # todo: edit the notification body 
+                await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial")
+            except:
+                pass
     except:
         pass
     
@@ -122,7 +126,7 @@ async def login(farmer: FarmerLoginModel = Body(...), Authorize: AuthJWT = Depen
         updatesMap["is_active"] = True
         
         await update_farmer_by_id(current_farmer["id"], updatesMap)
-        # await send_fcm_notification(token=current_farmer["notification_token"], title= "fastapi login", body =  "first notification trial for fastapi login")
+        
         
     except:
         pass

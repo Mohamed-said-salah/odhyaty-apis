@@ -122,6 +122,20 @@ async def update_order(id: str, data: dict) -> Optional[dict]:
                 return orders_helper(new_order)
     return None
 
+# update order by user id
+async def update_orders_by_user_id(user_id: str, data: dict) -> Optional[dict]:
+    orders = await orders_collection.find({"user_id": ObjectId(user_id)})
+    if orders:
+        updated_orders = []
+        async for order in orders:
+            updated_order = await orders_collection.update_one({"_id": order["_id"]}, {"$set": data})
+            if updated_order:
+                new_order = await orders_collection.find_one({"_id": order["_id"]})
+                if new_order:
+                    updated_orders.append(orders_helper(new_order))
+        return updated_orders
+    return None
+
 # delete order
 async def delete_order(id: str) -> Optional[dict]:
     order = await orders_collection.find_one({"_id": ObjectId(id)})
@@ -129,4 +143,18 @@ async def delete_order(id: str) -> Optional[dict]:
         deleted_order = await orders_collection.delete_one({"_id": ObjectId(id)})
         if deleted_order:
             return orders_helper(order)
+    return None
+
+# todo: delete orders by user id
+async def delete_orders_by_user_id(user_id: str) -> Optional[dict]:
+    deleted_orders = await orders_collection.delete_many({"user_id": ObjectId(user_id)})
+    if deleted_orders:
+        return deleted_orders
+    return None
+
+# todo: delete orders by farmer id
+async def delete_orders_by_farmer_id(farmer_id: str) -> Optional[dict]:
+    deleted_orders = await orders_collection.delete_many({"farmer_id": ObjectId(farmer_id)})
+    if deleted_orders:
+        return deleted_orders
     return None

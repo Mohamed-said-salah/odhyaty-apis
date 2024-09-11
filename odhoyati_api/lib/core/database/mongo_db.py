@@ -11,6 +11,8 @@ farmers_collection = database.get_collection("farmers")
 items_collection = database.get_collection("items")
 orders_collection = database.get_collection("orders")
 reviews_collection = database.get_collection("reviews")
+notification_collection = database.get_collection("notifications")
+admins_collection = database.get_collection("admins")
 
 # todo: admins collection
 # todo: appointments collection
@@ -89,6 +91,8 @@ def orders_helper(order) -> dict:
         "status": order["status"],
         "created_at": order["created_at"],
         "updated_at": order["updated_at"],
+        "reviewed": order["reviewed"],
+        "farmer_sent_notification": order["farmer_sent_notification"],
         "closed_by": order["closed_by"]
     }
 
@@ -107,5 +111,33 @@ def reviews_helper(review) -> dict:
         "review": review["review"],
         "created_at": review["created_at"],
         "updated_at": review["updated_at"],
-        "closed_by": review["closed_by"]
+    }
+
+def notification_helper(notification) -> dict:
+    return {
+        "id": str(notification["_id"]),
+        "sender_id": notification["sender_id"],
+        "receiver_id": notification["receiver_id"],
+        "sender_name": notification["sender_name"],
+        "receiver_name": notification["receiver_name"],
+        "type": notification["type"],
+        "message": notification["message"],
+        "load": notification["load"],
+        "status": notification["status"],
+        "created_at": notification["created_at"],
+        "updated_at": notification["updated_at"]
+    }
+    
+
+def admins_helper(admin) -> dict:
+    return {
+        "id": str(admin["_id"]),
+        "name": admin["name"],
+        "phone_number": admin["phone_number"],
+        "password": admin["password"],
+        "notification_token": admin["notification_token"],
+        "user_type": admin["user_type"],
+        "is_active": admin["is_active"],
+        "created_at": admin["created_at"],
+        "updated_at": admin["updated_at"]
     }

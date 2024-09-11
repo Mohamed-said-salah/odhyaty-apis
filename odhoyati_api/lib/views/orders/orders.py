@@ -106,12 +106,50 @@ async def get_all_orders(page: Optional[int] = None, limit: Optional[int] = None
     return {"message": "orders fetched successfully", "data": orders}
 
 
-# Todo: accept order (trader)
+# Todo: completed (admin, customer)
+@router.get("/completed-order")
+async def mark_order_as_completed(order_id: str, Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+        
+    except:
+        return Response(status_code=401, content="user not authorized")
 
-# Todo: decline order (trader)
+    if not is_farmer(Authorize.get_raw_jwt().get("user_type")):
+        return Response(status_code=400, content="farmer type does not has privileges to take this action.")
+    
+    order = await get_order_by_id(order_id)
+    
+    if not order:
+        return Response(status_code=400, content="order not found")
+    
+    if order.get("status") == "COMPLETED":
+        return Response(status_code=400, content="order already completed")
+    
+    order = await update_order(order_id, {"status": "COMPLETED"})
+    
+    return {"message": "order completed successfully", "data": order}
 
-# Todo: miss order (admin)
+# Todo: cancel order
+@router.get("/cancel-order")
+async def mark_order_as_completed(order_id: str, Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+        
+    except:
+        return Response(status_code=401, content="user not authorized")
 
-# Todo: failed (admin, customer)
-
-# Todo: completed (admin, customer, trader)
+    if not is_farmer(Authorize.get_raw_jwt().get("user_type")):
+        return Response(status_code=400, content="farmer type does not has privileges to take this action.")
+    
+    order = await get_order_by_id(order_id)
+    
+    if not order:
+        return Response(status_code=400, content="order not found")
+    
+    if order.get("status") == "CANCELLED":
+        return Response(status_code=400, content="order already completed")
+    
+    order = await update_order(order_id, {"status": "CANCELLED"})
+    
+    return {"message": "order cancelled successfully", "data": order}

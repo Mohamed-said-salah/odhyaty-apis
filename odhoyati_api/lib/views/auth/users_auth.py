@@ -51,8 +51,12 @@ async def register(user: UserSchema = Body(...), Authorize: AuthJWT = Depends())
     user_dict["updated_at"] = user.updated_at.isoformat()
     
     try:
-        # todo: send this notification to the admin
-        await send_fcm_notification(token=user.notification_token, title= "fastapi", body =  "first notification trial")
+        admins = await get_all_admins()
+        for admin in admins:
+            try: # todo: edit the notification body at production
+                await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial")
+            except:
+                pass
     except:
         pass
     

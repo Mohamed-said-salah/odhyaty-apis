@@ -15,6 +15,8 @@ class OrderSchema(BaseModel):
     status: str = Field("PENDING", description="the status of the order") # PENDING, COMPLETED, CANCELLED, UNVERIFIED
     created_at: str = Field(datetime.utcnow(), description="date and time of order creation")
     updated_at: str = Field(datetime.utcnow(), description="date and time of order update")
+    reviewed: Optional[bool] = False
+    farmer_sent_notification : Optional[bool] = False
     closed_by: Optional[str] = None
     
     class Config:
@@ -37,7 +39,9 @@ class OrderSchema(BaseModel):
                 },
                 "status": "pending",
                 "created_at": "2022-01-01 00:00:00",
-                "updated_at": "2022-01-01 00:00:00"
+                "updated_at": "2022-01-01 00:00:00",
+                "reviewed": False,
+                "farmer_sent_notification": False
             }
         }
         
@@ -45,12 +49,15 @@ class OrderSchema(BaseModel):
 
 class UpdateOrderModel(BaseModel):
     status: Optional[str]
+    reviewed: Optional[bool]
     updated_at: str = datetime.utcnow()
-    
+
     class Config:
         json_schema_extra = {
             "example": {
                 "status": "pending",
-                "updated_at": "2022-01-01 00:00:00"
+                "reviewed": False,
+                "farmer_sent_notification": False,
+                "updated_at": "2022-01-01 00:00:00",
             }
         }

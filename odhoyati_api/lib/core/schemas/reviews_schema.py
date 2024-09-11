@@ -19,7 +19,6 @@ class ReviewSchema(BaseModel):
     review: Optional[str] = None
     created_at: str = Field(datetime.utcnow(), description="date and time of order creation")
     updated_at: str = Field(datetime.utcnow(), description="date and time of order update")
-    closed_by: Optional[str] = None
     
     class Config:
         json_schema_extra = {
@@ -44,6 +43,7 @@ class ReviewSchema(BaseModel):
                 "rate": 5,
                 "review": "Good item",
                 "created_at": "2022-01-01 00:00:00",
+                "updated_at": "2022-01-01 00:00:00"
             }
         }
         
@@ -62,3 +62,5 @@ class UpdateReviewModel(BaseModel):
                 "updated_at": "2022-01-01 00:00:00"
             }
         }
+        
+        

@@ -20,6 +20,20 @@ async def get_all_users() -> list:
         users.append(users_helper(user))
     return users
 
+# get users by filter
+async def get_users_by_filter(filter_: dict, page: Optional[int] = None, limit: Optional[int] = None) -> list:
+    if page and limit:
+        users = []
+        async for user in users_collection.find(filter_).skip((page - 1) * limit).limit(limit):
+            users.append(users_helper(user))
+        return users
+    
+    users = []
+    async for user in users_collection.find(filter_):
+        users.append(users_helper(user))
+    return users
+
+
 # get user by id
 async def get_user_by_id(id: str) -> Optional[dict]:
     user = await users_collection.find_one({"_id": ObjectId(id)})
@@ -34,9 +48,7 @@ async def get_user_by_phone_number(phone_number: str) -> Optional[dict]:
         return users_helper(user)
     return None
 
-# todo: filter users
 
-# todo: paginate users
 
 # update user with id
 async def update_user_by_id(id: str, data: dict) -> Optional[dict]:
