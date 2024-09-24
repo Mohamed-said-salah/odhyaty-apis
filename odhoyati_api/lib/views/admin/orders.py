@@ -42,7 +42,7 @@ router = APIRouter()
 
 
 # todo: filter orders
-@router.get('/orders')
+@router.get('/filter-orders')
 async def get_orders( user_id: Optional[str] = None, farmer_id: Optional[str] = None, item_id: Optional[str] = None , status: Optional[str] = None , created_at: Optional[str] = None , page: Optional[int] = None, limit: Optional[int] = None, Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_refresh_token_required()
@@ -79,7 +79,7 @@ async def get_orders( user_id: Optional[str] = None, farmer_id: Optional[str] = 
     return {"message": "orders fetched successfully", "data": orders_list}
 
 # todo: create update order by id 
-@router.put('/orders/{id}')
+@router.put('/update-order/{order_id}')
 async def update_order_by_id(order_id: str, order: dict, Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_refresh_token_required()
@@ -96,7 +96,7 @@ async def update_order_by_id(order_id: str, order: dict, Authorize: AuthJWT = De
     return {"message": "order updated successfully", "data": order}
 
 # todo: delete order by id
-@router.delete('/orders/{id}')
+@router.delete('/orders/remove-order')
 async def delete_order_by_id(order_id: str, Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_refresh_token_required()

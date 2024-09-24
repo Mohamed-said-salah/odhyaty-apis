@@ -35,6 +35,12 @@ async def get_notifications_by_receiver_id(receiver_id: str, page: Optional[int]
     return notifications
 
 
+# todo: get notification by id
+async def get_notification_by_id(notification_id: str) -> dict:
+    notification = await notification_collection.find_one({"_id": ObjectId(notification_id)})
+    if notification:
+        return notification_helper(notification)
+
 # update notification by id
 async def update_notification(notification_id: str, notification_data: dict) -> dict:
     if len(notification_data) < 1:
@@ -48,9 +54,15 @@ async def update_notification(notification_id: str, notification_data: dict) -> 
     return None
 
 # delete notification by id
-async def delete_notification(notification_id: str) -> bool:
-    notification = await notification_collection.delete_one({"_id": ObjectId(notification_id)})
+async def delete_notification(notification_id: str, receiver_id: str) -> bool:
+    notification = await notification_collection.delete_one({"_id": ObjectId(notification_id), "receiver_id": ObjectId(receiver_id)})
     if notification.deleted_count > 0:
         return True
     return False
 
+# delete all user notifications
+async def delete_notifications_by_receiver_id(receiver_id: str) -> bool:
+    notification = await notification_collection.delete_many({"receiver_id": ObjectId(receiver_id)})
+    if notification.deleted_count > 0:
+        return True
+    return False

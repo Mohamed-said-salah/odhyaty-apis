@@ -15,6 +15,8 @@ from core.redis.redis_conn import redis_conn as redis
 
 from core.schemas.admins_schema import AdminSchema, AdminLoginModel
 
+from core.schemas.notification_schema import NotificationSchema
+
 from ..auth.helpers.check_user_type import is_super_admin
 
 from controllers.crud.admins import (
@@ -27,6 +29,8 @@ from controllers.crud.admins import (
     delete_admin_by_id,
     delete_admin_by_phone_number,
 )
+
+from controllers.crud.notifications import create_notification
 
 
 from controllers.notifications.notification import send_fcm_notification
@@ -50,7 +54,6 @@ async def add(admin: AdminSchema = Body(...), Authorize: AuthJWT = Depends()):
         
     except:
         return Response(status_code=401, content="user not authorized")
-
     
     current_admin = await get_admin_by_phone_number(admin.phone_number)
     
@@ -69,7 +72,9 @@ async def add(admin: AdminSchema = Body(...), Authorize: AuthJWT = Depends()):
         admins = await get_all_admins()
         for admin in admins:
             try:
-                await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial") # todo: edit the notification body
+                await send_fcm_notification(token=admin["notification_token"], title= "إشعار أضحيتي", body =  "تم انشاء حساب ادمن جديد", load= {"type": "new_admin", "account_id": admin_dict["id"]}) # todo: edit the notification body
+                notification_data = NotificationSchema(sender_id = Authorize.get_jwt_subject(), receiver_id = "admin", sender_name = "super admin account", receiver_name = "all admins", type = "new_admin", message = "تم انشاء حساب ادمن جديد", load= {"type": "new_admin", "account_id": admin_dict["id"]},  status = "new")
+                await create_notification(notification_data.dict())
             except:
                 pass
     except:

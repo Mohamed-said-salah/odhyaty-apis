@@ -64,8 +64,10 @@ async def login(admin: AdminLoginModel = Body(...), Authorize: AuthJWT = Depends
 
         admins = await get_all_admins()
         for admin in admins:
-            
-            await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial")
+            try:
+                await send_fcm_notification(token=admin["notification_token"], title= "تم الدخول علي أضحيتي بحساب مسؤل", body =  f"{admin['name']}لقد نم التسجيل علي أضحيتي بحساب مسؤل", load= {"type": "admin_login", "account_id": admin["id"]}) 
+            except:
+                pass
 
     except:
         pass

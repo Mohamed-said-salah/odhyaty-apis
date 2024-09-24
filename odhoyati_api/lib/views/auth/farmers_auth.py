@@ -34,6 +34,10 @@ from controllers.crud.farmers import (
 
 from controllers.notifications.notification import send_fcm_notification
 
+from controllers.crud.notifications import create_notification
+
+from core.schemas.notification_schema import NotificationSchema
+
 TOKEN_SETTINGS = Settings()
 
 
@@ -82,7 +86,20 @@ async def register(farmer_string: str = Form(...), image: UploadFile = File(None
         admins = await get_all_admins()
         for admin in admins:
             try: # todo: edit the notification body 
-                await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial")
+                message =  "لفد قام التاجر " + f"{farmer_dict['name']}" + " بتسجيل حساب جديد علي اضحيتي برقم الهاتف " + f"{farmer_dict['phone_number']}"
+                await send_fcm_notification(token=admin["notification_token"], title= "تم تسجيل تاجر جديد علي إضحيتي", body = message)
+                notification_data = NotificationSchema(
+                    sender_id = farmer_dict["id"],
+                    receiver_id = admin["id"],
+                    sender_name = farmer_dict["name"],
+                    receiver_name = admin["name"],
+                    type = "new_farmer",
+                    body = message,
+                    load = {"type": "new_farmer", "account_id": farmer_dict["id"]},
+                    status = "new"
+                )
+                await create_notification(notification_data.dict())
+                
             except:
                 pass
     except:

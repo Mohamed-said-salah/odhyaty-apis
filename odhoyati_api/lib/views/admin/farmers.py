@@ -91,6 +91,15 @@ async def verify_farmer(farmer_id: str, Authorize: AuthJWT = Depends()):
     
     await update_farmer_by_id(farmer_id, {"is_verified": True})
     
+    try:
+        
+        await send_fcm_notification(token=farmer["notification_token"], title= "تم تفعيل حساب أضحيتي", body =  "مبروك تم تفعيل حساب أضحيتي بنجاح")
+        notification_data = NotificationSchema(sender_id = Authorize.get_jwt_subject(), receiver_id = farmer["id"], sender_name = "أدمن أضجيتي", receiver_name = farmer["name"], type = "verified_farmer", message = " مبروك تم تفعيل حساب أضحيتي بنجاح", load= {"type": "verified_farmer", "account_id": farmer["id"]},  status = "new")
+        await create_notification(notification_data.dict())
+        
+    except:
+        pass
+    
     farmer.pop("password")
     farmer["is_verified"] = True
     
@@ -153,7 +162,7 @@ async def filter_users(page: Optional[int] = None, limit: Optional[int] = None, 
     return {"message": "farmers fetched successfully", "data": farmers_list}
 
 
-# todo: delete user by id
+# todo: delete farmer by id
 @router.delete("/delete-farmer-by-id")
 async def delete_farmer_by_id(farmer_id: str, Authorize: AuthJWT = Depends()):
     try:

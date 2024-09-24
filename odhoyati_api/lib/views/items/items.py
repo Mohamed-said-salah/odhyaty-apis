@@ -136,7 +136,7 @@ async def get_items_by_filter(
 
 # Todo: edit item
 @router.put("/update/{id}")
-async def update_item_by_id(id: str, item: UpdateItemModel, Authorize: AuthJWT = Depends()):
+async def update_item_by_id_req(id: str, item: UpdateItemModel, Authorize: AuthJWT = Depends()):
     try:
         Authorize.jwt_refresh_token_required()
     except:
@@ -153,6 +153,44 @@ async def update_item_by_id(id: str, item: UpdateItemModel, Authorize: AuthJWT =
     updated_item = await update_item_by_id(id, item_dict)
     
     return Response(status_code=200, content={"message": "item updated successfully", "data": updated_item})
+
+# Todo: Update Item Image
+@router.put("/update/image/{item_id}")
+async def update_item_image_by_id(item_id: str, image: UploadFile = File(...), Authorize: AuthJWT = Depends()):
+    try:
+        Authorize.jwt_refresh_token_required()
+    except:
+        return Response(status_code=401, content="farmer not authorized")
+    
+    farmer_id = Authorize.get_jwt_subject()
+    
+    item_in_db = await get_item_by_id(item_id)
+    
+    if item_in_db.get("farmer_id") != farmer_id:
+        return Response(status_code=403, content="you are not the owner of this item")
+    
+    image_unique_id = f"{farmer_id}/{token_hex(5)}.jpg"
+    image_path = f"/mnt/d/api_images/{image_unique_id}" # todo: edit this while on production
+    
+    try:
+        # this makes sure that the directory is made before saving to it
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    
+        with open(image_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+    except:
+        return Response(status_code=500, content="failed to update item image")
+    
+    if await update_item_by_id(item_id, {"image": image_unique_id}):
+    
+        try:
+            os.remove(f"/mnt/d/api_images/{item_in_db.get('image')}")
+        except:
+            pass
+    
+        return Response(status_code=200, content={"message": "item image updated successfully", "data": {"image": image_unique_id}})
+    
+    return Response(status_code=500, content="failed to update item image")
 
 # Todo: delete item
 @router.delete("/delete/{id}")

@@ -23,7 +23,7 @@ async def get_access_token():
     return credentials.token
 
 
-async def send_fcm_notification(token: str, title: str, body: str):
+async def send_fcm_notification(token: str, title: str, body: str, load: dict):
     access_token = await get_access_token()
 
     headers = {
@@ -36,7 +36,8 @@ async def send_fcm_notification(token: str, title: str, body: str):
             "token": token,
             "notification": {
                 "title": title,
-                "body": body
+                "body": body,
+                "load": load,
             }
         }
     }

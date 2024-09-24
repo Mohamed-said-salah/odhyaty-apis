@@ -24,6 +24,9 @@ from controllers.crud.users import (
     delete_user,
 )
 
+
+from core.schemas.notification_schema import NotificationSchema
+
 from controllers.notifications.notification import send_fcm_notification
 
 
@@ -54,7 +57,20 @@ async def register(user: UserSchema = Body(...), Authorize: AuthJWT = Depends())
         admins = await get_all_admins()
         for admin in admins:
             try: # todo: edit the notification body at production
-                await send_fcm_notification(token=admin["notification_token"], title= "fastapi", body =  "first notification trial")
+                message =  "لفد قام المستخدم " + f"{user_dict['name']}" + " بتسجيل حساب جديد علي اضحيتي برقم الهاتف " + f"{user_dict['phone_number']}"
+                await send_fcm_notification(token=admin["notification_token"], title= "تم تسجيل مستخدم جديد علي إضحيتي", body = message)
+                notification_data = NotificationSchema(
+                    sender_id = user_dict["id"],
+                    receiver_id = admin["id"],
+                    sender_name = user_dict["name"],
+                    receiver_name = admin["name"],
+                    type = "new_user",
+                    body = message,
+                    load = {"type": "new_user", "account_id": user_dict["id"]},
+                    status = "new"
+                )
+                await create_notification(notification_data.dict())
+                
             except:
                 pass
     except:
@@ -101,7 +117,7 @@ async def login(user: UserLoginModel = Body(...), Authorize: AuthJWT = Depends()
         updatesMap["is_active"] = True
         
         await update_user_by_id(current_user["id"], updatesMap)
-        # await send_fcm_notification(token=current_user["notification_token"], title= "fastapi login", body =  "first notification trial for fastapi login")
+        
         
     except:
         pass

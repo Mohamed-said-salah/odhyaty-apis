@@ -38,6 +38,9 @@ from controllers.notifications.notification import send_fcm_notification
 
 from controllers.crud.farmers import get_farmer_by_id
 
+from controllers.crud.notifications import create_notification
+
+from core.schemas.notification_schema import NotificationSchema
 
 TOKEN_SETTINGS = Settings()
 
@@ -93,6 +96,16 @@ async def verify_user(user_id: str, Authorize: AuthJWT = Depends()):
     
     await update_user_by_id(user_id, {"is_verified": True})
     
+    try:
+        
+        await send_fcm_notification(token=user["notification_token"], title= "تم تفعيل حساب أضحيتي", body =  "مبروك تم تفعيل حساب أضحيتي بنجاح")
+        notification_data = NotificationSchema(sender_id = Authorize.get_jwt_subject(), receiver_id = user["id"], sender_name = "أدمن أضجيتي", receiver_name = user["name"], type = "verified_user", message = " مبروك تم تفعيل حساب أضحيتي بنجاح", load= {"type": "verified_user", "account_id": user["id"]},  status = "new")
+        await create_notification(notification_data.dict())
+        
+    except:
+        pass
+    
+    
     orders = await update_orders_by_user_id(user_id, {"status": "PENDING"})
     
     if orders:
@@ -101,7 +114,9 @@ async def verify_user(user_id: str, Authorize: AuthJWT = Depends()):
             farmer = await get_farmer_by_id(farmer_id)
             try:
                 # todo: get the admins ids and loop throw them to send the notifications to the all admins accounts
-                await send_fcm_notification(token=farmer["notification_token"], title= "fastapi", body =  "first notification trial")
+                await send_fcm_notification(token=farmer["notification_token"], title= "لديك طلب جديد  من عميل أضحيتي", body =  "عزيزي تاجر أضحيتي لديك طلب جديد من عميل  علي أضحيتي")
+                notification_data = NotificationSchema(sender_id = user["id"], receiver_id=farmer['id'], sender_name = user['name'], receiver_name = farmer['name'], type = "new_order", message = "عزيزي تاجر أضحيتي لديك طلب جديد من عميل  علي أضحيتي", load= {"type": "new_order", "order_id": order["id"]},  status = "new")
+                await create_notification(notification_data.dict())
             except:
                 pass
     

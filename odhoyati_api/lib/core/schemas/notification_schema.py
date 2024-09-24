@@ -12,10 +12,10 @@ class NotificationSchema(BaseModel):
     receiver_id: str = Field(..., description="the id of the user/farmer notification sent to") # farmer user received the review
     sender_name: str = Field(..., description="Name of the sender")
     receiver_name: str = Field(..., description="Name of the receiver")
-    notification_type: str = Field(..., description="type of the notification") # new_user / new_order(for admin and farmer) / completed_order(for admin and user and farmer) / canceled_order (for admin and user and farmer) / review (for admin and user and farmer) / 
+    notification_type: str = Field(..., description="type of the notification") # new_user / new_order(for admin and farmer) / completed_order(for admin and user and farmer) / canceled_order (for admin and user and farmer) / review (for admin and user and farmer) / new_admin / new_farmer / verified_user / verified_farmer
     message: str = Field(None, description="message for user who received the notification")
     load: Optional[dict] = {}
-    status: str = Field("new", description="the status of the notification") # read / new / unsent
+    status: str = Field("new", description="the status of the notification") # opened / new / unsent
     created_at: str = Field(datetime.utcnow(), description="date and time of order creation")
     updated_at: str = Field(datetime.utcnow(), description="date and time of order update")
     
